@@ -1,0 +1,4 @@
+.vscode
+logs/
+*.ini
+!config.example.ini
