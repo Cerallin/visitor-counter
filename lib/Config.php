@@ -5,7 +5,7 @@ namespace lib;
 use lib\Abstracts\Singleton;
 
 /**
- * Config manager.
+ * 配置管理器。
  *
  * @method static string debug()
  *
@@ -13,22 +13,29 @@ use lib\Abstracts\Singleton;
  */
 class Config extends Singleton
 {
+    /**
+     * @var array 存储配置信息的键值对
+     */
     private $config;
 
+    /**
+     * 实例化方法，
+     */
     public function __construct()
     {
+        // 默认设置可被覆盖，配置文件缺失时默认值仍存在。
         $this->config = array_merge(
-            // default
             [
                 'all' => ['debug' => false],
                 'log' => ['directory' => 'logs'],
             ],
+            // 第三个参数的true意即保留ini文件分段。
             parse_ini_file(__DIR__ . '/../config.ini', true)
         );
     }
 
     /**
-     * Get value of a key.
+     * 获取某段某键的值，没有则返回NULL。
      *
      * @param string $section
      * @param string $key
@@ -41,7 +48,7 @@ class Config extends Singleton
     }
 
     /**
-     * Get all key-values under a section.
+     * 获取某段下全部键值对，没有则返回空数组。
      *
      * @param string $section
      *
@@ -49,12 +56,12 @@ class Config extends Singleton
      */
     public static function getAll($section)
     {
-        $config = self::getInstance()->config ?? null;
+        $config = self::getInstance()->config ?? [];
         return ($config[$section] ?? []) + ($config['all'] ?? []);
     }
 
     /**
-     * Search key globally.
+     * 实现键的全局查找，没有则返回NULL。
      *
      * @param string $key
      * @return string|null
@@ -62,10 +69,12 @@ class Config extends Singleton
     public static function __callStatic($key, $arguments)
     {
         $config = self::getInstance()->config ?? null;
+        // 首先查找all段
         if ($value = ($config['all'][$key] ?? null)) {
             return $value;
         }
 
+        // all段没有就便利所有段
         foreach ($config as $hash) {
             if ($value = ($hash[$key] ?? null)) {
                 return $value;

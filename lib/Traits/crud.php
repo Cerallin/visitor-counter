@@ -2,8 +2,11 @@
 
 namespace lib\Traits;
 
-use PDO;
-
+/**
+ * CRUD意为增删改查，是数据库的四种基本操作。
+ *
+ * 该trait封装了所有SQL语句的执行。
+ */
 trait crud
 {
     public function __call($name, $arguments)

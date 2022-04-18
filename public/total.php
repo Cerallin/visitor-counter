@@ -23,6 +23,6 @@ try {
     die($response);
 } catch (Exception $e) {
     if (Config::debug())
-        die(new Response($e->getMessage()));
+        die(new Response($e->getMessage(), 500));
     die(new Response("Error occured, for more information, please enable debugging.", 500));
 }

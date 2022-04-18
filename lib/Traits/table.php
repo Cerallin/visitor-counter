@@ -2,6 +2,9 @@
 
 namespace lib\Traits;
 
+/**
+ * 封装数据表相关操作。
+ */
 trait table {
     public function createTable()
     {

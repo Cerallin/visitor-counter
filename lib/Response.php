@@ -2,57 +2,106 @@
 
 namespace lib;
 
+/**
+ * 返回的抽象。
+ */
 class Response
 {
-    private $message;
+    /**
+     * @var string|Stringable 返回的内容，类型为字符串或能转换成字符串的类。
+     */
+    private $content;
 
-    private $code;
+    /**
+     * @var int 状态码
+     */
+    private $statusCode;
 
+    /**
+     * @var array 请求头数组
+     */
     private $headers = [];
 
-    public function __construct($message, $code = 200, $headers = [])
+    /**
+     * 实例化时可以设置返回内容、状态码和返回头。
+     *
+     * @param string $content
+     * @param int $statusCode
+     * @param array $headers
+     */
+    public function __construct($content, $statusCode = 200, $headers = [])
     {
-        $this->message = $message;
-        $this->code = $code;
+        $this->content = $content;
+        $this->statusCode = $statusCode;
 
         foreach ($headers as $key => $value) {
             $this->addHeader($key, $value);
         }
     }
 
+    /**
+     * 自动转换为字符串的魔术方法。本项目中总是结合 die() 使用
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->dispatch();
     }
 
+    /**
+     * 添加一个返回头。
+     *
+     * @param string $key
+     * @param string $value
+     *
+     * @return lib\Response
+     */
     public function addHeader($key, $value)
     {
+        // 先全小写再首字母大写
         $key = ucfirst(strtolower($key));
+        // 把value强制转换为字符串
         $this->headers[$key] = (string) $value;
+        // 返回自身指针从而实现流式API
         return $this;
     }
 
-    public function setCode($code)
+    /**
+     * 设置 HTTP 状态码。
+     *
+     * @param int $statusCode
+     *
+     * @return lib\Response
+     */
+    public function setStatusCode($statusCode)
     {
-        $this->code = $code;
+        $this->statusCode = $statusCode;
         return $this;
     }
 
+    /**
+     * 打包发送。
+     */
     public function dispatch()
     {
-        if (is_string($this->message)) {
+        if (is_string($this->content)) {
             //
         } else {
+            // 此处假定 $this->content 可以被编码为JSON格式。
+            // PHP 7 没有 JsonSerializable
             $this->headers['Content-type'] = 'Application/json';
-            $this->message = json_encode($this->message);
+            $this->content = json_encode($this->content);
         }
 
+        // 设置请求头
         foreach ($this->headers as $key => $value) {
             header("$key: $value");
         }
 
-        http_response_code($this->code);
+        // 设置状态码
+        http_response_code($this->statusCode);
 
-        return $this->message;
+        return $this->content;
     }
 }
