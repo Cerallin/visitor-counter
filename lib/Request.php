@@ -3,7 +3,7 @@
 namespace lib;
 
 use Exception;
-use lib\Exceptions\HostUndeclaredException;
+use lib\Exceptions\URLUndeclaredException;
 
 /**
  * HTTP 请求的抽象。
@@ -73,9 +73,20 @@ class Request
      */
     public function host()
     {
-        $referPage = $this->refer();
-        preg_match('/^https?\:\/\/([^\/]+)/i', $referPage, $matched);
-        return $matched[1] ?? null;
+        // 当 $this->referPage 有内容时直接返回
+        if ($this->referPage)
+            return $this->referPage;
+
+        // 否者从请求头中解析
+        $this->referPage = $_SERVER['HTTP_REFERER'] ?? null;
+
+        // 没有Referer的请求是不被允许的
+        if (!$this->referPage)
+            throw new URLUndeclaredException("Missing Header: Referer.");
+
+        Log::debug("Got a request from referer: " . $this->referPage);
+
+        return $this->referPage;
     }
 
     /**
@@ -85,7 +96,11 @@ class Request
      */
     public function page()
     {
-        return $this->refer();
+        $page = $this->input('page');
+        if (!$page)
+            throw new URLUndeclaredException("Missing param: page");
+
+        return $page;
     }
 
     /**
@@ -105,7 +120,7 @@ class Request
 
         // 没有Referer的请求是不被允许的
         if (!$this->referPage)
-            throw new HostUndeclaredException("Host not declared as REFERER.");
+            throw new URLUndeclaredException("Host not declared as REFERER.");
 
         Log::debug("Got a request from referer: " . $this->referPage);
 

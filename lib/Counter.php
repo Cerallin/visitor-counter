@@ -23,40 +23,30 @@ class Counter
     }
 
     /**
-     * 计算全站访问量。
+     * 计算访问量。
      *
-     * @param string $host
-     *
-     * @return array
-     */
-    public function countHost($host)
-    {
-        return [
-            'pv' =>
-            $this->db->select("COUNT(*) count FROM {$this->db->table} WHERE `host` = ?", [$host]),
-            'uv' =>
-            $this->db->select("COUNT(*) count FROM (
-                SELECT DISTINCT `ip`
-                FROM {$this->db->table} WHERE `host` = ?) tmp", [$host]),
-        ];
-    }
-
-    /**
-     * 计算单页访问量。
-     *
-     * @param string $page
+     * @param string $host 源站域名
+     * @param string $page 源站页面
      *
      * @return array
      */
-    public function countPage($page)
+    public function get($host, $page)
     {
+        // TODO 减少查询次数
         return [
-            'pv' =>
+            'page_pv' =>
             $this->db->select("COUNT(*) count FROM {$this->db->table} WHERE `page` = ?", [$page]),
-            'uv' =>
+            '[age_uv' =>
             $this->db->select("COUNT(*) count FROM (
                 SELECT DISTINCT `ip`
                 FROM {$this->db->table} WHERE `page` = ?) tmp", [$page]),
+
+            'site_pv' =>
+            $this->db->select("COUNT(*) count FROM {$this->db->table} WHERE `host` = ?", [$host]),
+            'site_uv' =>
+            $this->db->select("COUNT(*) count FROM (
+                SELECT DISTINCT `ip`
+                FROM {$this->db->table} WHERE `host` = ?) tmp", [$host]),
         ];
     }
 
@@ -65,7 +55,7 @@ class Counter
      *
      * @param string $ip    IP地址
      * @param string $host  源站域名
-     * @param string $page  当前页面
+     * @param string $page  源站页面
      *
      * @return bool
      */

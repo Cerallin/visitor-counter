@@ -9,7 +9,7 @@ use Exception;
  *
  * @final
  */
-class HostUndeclaredException extends Exception
+class URLUndeclaredException extends Exception
 {
     public function __construct($message, $code = 0, $previous = null)
     {
