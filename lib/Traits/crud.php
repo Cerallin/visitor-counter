@@ -2,9 +2,11 @@
 
 namespace lib\Traits;
 
+use lib\DBQuery;
+use lib\Exceptions\DBQueryException;
+
 /**
  * CRUD意为增删改查，是数据库的四种基本操作。
- *
  * 该trait封装了所有SQL语句的执行。
  */
 trait crud
@@ -12,8 +14,13 @@ trait crud
     public function __call($name, $arguments)
     {
         $query = array_shift($arguments);
-        $statement = $this->pdo->prepare($query['string']);
-        foreach ($query['params'] as $i => $param) {
+        if (!$query instanceof DBQuery) {
+            throw new DBQueryException(
+                "Invalid DBQuery, please use " . DBQuery::class . " instead of array."
+            );
+        }
+        $statement = $this->pdo->prepare($query->string);
+        foreach ($query->params as $i => $param) {
             $statement->bindValue($i + 1, $param);
         }
 
@@ -27,36 +34,48 @@ trait crud
         }
     }
 
+    /**
+     * 插入一条记录。
+     *
+     * @param array $array 键值对
+     *
+     * @return bool
+     */
     public function insert($array = [])
     {
         if (!$array)
             return false;
 
-        $query = [
-            'string' => "",
-            'params' => [],
-        ];
+        $query = new DBQuery();
         $values = "";
         foreach ($array as $key => $value) {
-            $query['string'] .= "`{$key}`,";
+            $query->string .= "`{$key}`,";
+            $query->params[] = $value;
             $values .= "?,";
-            $query['params'][] = $value;
         }
 
         // Trim the last commas
-        $query['string'] = substr($query['string'], 0, -1);
+        $query->string = substr($query->string, 0, -1);
         $values = substr($values, 0, -1);
 
-        $query['string'] = "INSERT INTO {$this->table} ({$query['string']}) VALUES ({$values})";
+        $query->string = "INSERT INTO {$this->table} ({$query->string}) VALUES ({$values})";
 
         return $this->execute($query);
     }
 
+    /**
+     * 执行一条SELECT语句。
+     *
+     * @param string $queryString
+     * @param array $params
+     *
+     * @return array
+     */
     public function select($queryString, $params = [])
     {
-        return $this->fetchColumn([
-            'string' => "SELECT " . $queryString,
-            'params' => $params,
-        ]);
+        return $this->fetchColumn(new DBQuery(
+            "SELECT " . $queryString,
+            $params
+        ));
     }
 }
