@@ -93,7 +93,7 @@ class Response
         } elseif ($this->content instanceof JsonSerializable) {
             // 此处假定 $this->content 可以被编码为JSON格式。
             $this->headers['Content-type'] = 'Application/json';
-            $this->content = json_encode($this->content->jsonSerialize());
+            $this->content = json_encode($this->content);
         } else {
             throw new InvalidResponseException("Invalid response format.");
         }
