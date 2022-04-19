@@ -20,7 +20,7 @@ class Log extends Singleton
     /**
      * @var array 日志等级，因为 PHP 7 没有 enum
      */
-    const logLevels = ['debug', 'info', 'warning', 'error'];
+    const logLevels = ['debug', 'info', 'warn', 'error'];
 
     /**
      * @var array 日志的配置信息
@@ -43,10 +43,13 @@ class Log extends Singleton
 
     /**
      * 实现一套日志记录方法。
+     *
+     * @param string $name      函数名
+     * @param array $arguments  函数参数数组
      */
-    public static function __callStatic($level, $arguments)
+    public static function __callStatic($name, $arguments)
     {
-        $level = strtolower($level);
+        $level = strtolower($name);
         if (in_array($level, self::logLevels, true)) {
             // 日志等级为debug的信息，只有在打开调试的时候记录。
             if ($level === 'debug' && self::isDebug())
