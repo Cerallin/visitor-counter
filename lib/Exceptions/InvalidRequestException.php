@@ -5,11 +5,11 @@ namespace lib\Exceptions;
 use Exception;
 
 /**
- * 源网站解析异常。
+ * 请求解析异常。
  *
  * @final
  */
-class URLUndeclaredException extends Exception
+class InvalidRequestException extends Exception
 {
     public function __construct($message, $code = 0, $previous = null)
     {

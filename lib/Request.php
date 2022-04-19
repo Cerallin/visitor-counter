@@ -3,7 +3,7 @@
 namespace lib;
 
 use Exception;
-use lib\Exceptions\URLUndeclaredException;
+use lib\Exceptions\InvalidRequestException;
 
 /**
  * HTTP 请求的抽象。
@@ -82,7 +82,7 @@ class Request
 
         // 没有Referer的请求是不被允许的
         if (!$this->referPage)
-            throw new URLUndeclaredException("Missing Header: Referer.");
+            throw new InvalidRequestException("Missing Header: Referer.");
 
         Log::debug("Got a request from referer: " . $this->referPage);
 
@@ -98,32 +98,8 @@ class Request
     {
         $page = $this->input('page');
         if (!$page)
-            throw new URLUndeclaredException("Missing param: page");
+            throw new InvalidRequestException("Missing param: page");
 
         return $page;
-    }
-
-    /**
-     * 获取请求头中Referer的内容。
-     * 本函数存在的意义是防止 host() 和 page() 调用的先后顺序不同导致的频繁取变量。
-     *
-     * @return string
-     */
-    private function refer()
-    {
-        // 当 $this->referPage 有内容时直接返回
-        if ($this->referPage)
-            return $this->referPage;
-
-        // 否者从请求头中解析
-        $this->referPage = $_SERVER['HTTP_REFERER'] ?? null;
-
-        // 没有Referer的请求是不被允许的
-        if (!$this->referPage)
-            throw new URLUndeclaredException("Host not declared as REFERER.");
-
-        Log::debug("Got a request from referer: " . $this->referPage);
-
-        return $this->referPage;
     }
 }
