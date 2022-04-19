@@ -2,6 +2,9 @@
 
 namespace lib;
 
+use JsonSerializable;
+use lib\Exceptions\InvalidResponseException;
+
 /**
  * 返回的抽象。
  */
@@ -87,11 +90,12 @@ class Response
     {
         if (is_string($this->content)) {
             //
-        } else {
+        } elseif ($this->content instanceof JsonSerializable) {
             // 此处假定 $this->content 可以被编码为JSON格式。
-            // PHP 7 没有 JsonSerializable
             $this->headers['Content-type'] = 'Application/json';
-            $this->content = json_encode($this->content);
+            $this->content = json_encode($this->content->jsonSerialize());
+        } else {
+            throw new InvalidResponseException("Invalid response format.");
         }
 
         // 设置请求头
