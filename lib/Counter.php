@@ -36,7 +36,7 @@ class Counter
         return [
             'page_pv' =>
             $this->db->select("COUNT(*) count FROM {$this->db->table} WHERE `page` = ?", [$page]),
-            '[age_uv' =>
+            'page_uv' =>
             $this->db->select("COUNT(*) count FROM (
                 SELECT DISTINCT `ip`
                 FROM {$this->db->table} WHERE `page` = ?) tmp", [$page]),

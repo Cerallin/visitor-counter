@@ -74,7 +74,7 @@ class Config extends Singleton
             return $value;
         }
 
-        // all段没有就便利所有段
+        // all段没有就遍历所有段
         foreach ($config as $hash) {
             if ($value = ($hash[$key] ?? null)) {
                 return $value;
