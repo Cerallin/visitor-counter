@@ -13,8 +13,8 @@ $ curl -s \
 {
   "site_pv": 10,
   "site_uv": 7,
-  "site_uv": 5,
-  "site_uv": 3
+  "page_pv": 5,
+  "page_uv": 3
 }
 ```
 
