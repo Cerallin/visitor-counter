@@ -5,7 +5,9 @@ use lib\Counter;
 use lib\Request;
 use lib\Response;
 
-require_once __DIR__ . '/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
+
+$allowedOrigins = preg_split("/\s*\,\s*/", Config::allowedOrigins());
 
 try {
     $request = new Request('GET');
@@ -20,8 +22,17 @@ try {
 
     // 然后封装返回信息
     $response = new Response($counter->get($host, $page));
+
     // 设置跨域
-    $response->addHeader('Access-Control-Allow-Origin', '*');
+    foreach ($allowedOrigins as $origin) {
+        if (preg_match("/^https?:\/\/[^\/]*$origin/", $host)) {
+            $response->addHeader(
+                'Access-Control-Allow-Origin',
+                preg_replace("/\/$/", '', $host)
+            );
+            break;
+        }
+    }
 
     die($response);
 } catch (Exception $e) {

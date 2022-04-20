@@ -85,13 +85,16 @@ class Counter implements JsonSerializable
     {
         $this->db->createTable();
 
+        $created_at = date('Y-m-d H:i:s');
+
         $res = $this->db->insert([
             'ip'    => $ip,
             'host'  => $host,
             'page'  => $page,
+            'created_at' => $created_at,
         ]);
 
-        Log::info("Inserted record: (ip: $ip, host: $host, page: $page)");
+        Log::info("Inserted record: (ip: $ip, host: $host, page: $page, created_at: $created_at)");
 
         return $res;
     }

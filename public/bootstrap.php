@@ -8,3 +8,5 @@ spl_autoload_register(function ($className) {
         return require $filePath;
     }
 });
+
+require_once __DIR__ . '/../helpers.php';

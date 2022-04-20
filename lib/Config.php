@@ -68,6 +68,7 @@ class Config extends Singleton
      */
     public static function __callStatic($key, $arguments)
     {
+        $key = uncamelize($key, '-');
         $config = self::getInstance()->config ?? null;
         // 首先查找all段
         if ($value = ($config['all'][$key] ?? null)) {
